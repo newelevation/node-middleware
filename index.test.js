@@ -33,8 +33,8 @@ test("", async () => {
   const client = mid({
     use: [
       n => async (i, o) => { n(i, 'a') },
-      n => async (i, o) => { n(i, 'b') },
-      n => async (i, o) => { n(i, 'c') }
+      n => async (i, o) => { n(i, o + 'b') },
+      n => async (i, o) => { n(i, o + 'c') }
     ]
   })
 
@@ -42,5 +42,5 @@ test("", async () => {
 
   const output = await request('z')
 
-  expect(output).toEqual('c')
+  expect(output).toEqual('abc')
 })
