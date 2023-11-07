@@ -80,3 +80,27 @@ test("http", async () => {
     userId: 1,
   });
 });
+
+test("mix with objects", async () => {
+  const makeCommonClient = () => {};
+
+  const makeTodoClient = () => {
+    const commonClient = makeCommonClient();
+
+    const getOne = () => {};
+
+    return {
+      ...commonClient,
+      getOne,
+    };
+  };
+
+  const client = makeTodoClient();
+
+  expect(client.getOne(1)).toEqual({
+    completed: false,
+    id: 1,
+    title: "delectus aut autem",
+    userId: 1,
+  });
+});
