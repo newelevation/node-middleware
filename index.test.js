@@ -81,7 +81,7 @@ test("http", async () => {
   });
 });
 
-test("mix with objects", async () => {
+test("mixed use with objects", async () => {
   const makeCommonClient = ({ middlewares }) => {
     const pipeline = m(middlewares);
 
