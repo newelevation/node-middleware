@@ -1,12 +1,11 @@
 {
   "name": "middleware",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "0.0.1",
+  "main": "middleware.js",
   "scripts": {
     "format": "npx prettier . --write",
     "lint": "eslint --fix",
-    "test:watch": "jest . --watch"
+    "test:watch": "jest . --watch --coverage"
   },
   "keywords": [],
   "author": "",
