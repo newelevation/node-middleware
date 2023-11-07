@@ -1,4 +1,3 @@
-const tip = Symbol.for("tip");
 
 const middleware = (use = []) => {
   const factory = () => {
@@ -22,20 +21,12 @@ const middleware = (use = []) => {
       while (keep) {
         keep = false;
 
-        if (tip in current) {
-          let request = current();
-
-          next(input, await request(input, output));
-        } else {
-          await current(next)(input, output);
-        }
+        await current(next)(input, output);
       }
 
       return output;
     };
   };
-
-  factory[tip] = true;
 
   return factory;
 };
