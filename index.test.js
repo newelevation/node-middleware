@@ -1,37 +1,56 @@
-const middleware = require('./middleware')
+const m = require('./middleware')
 
 test("linear", async () => {
-  const factory = middleware([
-    next => async (input) => { next(input, 'a') },
-    next => async (input, output) => { next(input, output + 'b') },
-    next => async (input, output) => { next(input, output + 'c') }
+  const f = m([
+    n => async (i) => n(i, 'a'),
+    n => async (i, o) => n(i, o + 'b'),
+    n => async (i, o) => n(i, o + 'c')
   ])
 
-  const request = factory()
+  const r = f()
 
-  const output = await request('z')
+  const o = await r('z')
 
-  expect(output).toEqual('abc')
+  expect(o).toEqual('abc')
 })
 
 test("nested", async () => {
-  const factory = middleware([
-    next => async (input) => { next(input, 'a') },
-    next => async (input, output) => {
-      const factory = middleware([
-        next => async (input, output) => { next(input, output + 'b') },
-        next => async (input, output) => { next(input, output + 'c') }
+  const f = m([
+    n => async (i) => n(i, 'a'),
+    n => async (i, o) => {
+      const f = m([
+        n => async (i, o) => n(i, o + 'b'),
+        n => async (i, o) => n(i, o + 'c')
       ])
 
-      const request = factory()
+      const r = f()
 
-      next(input, await request(input, output))
+      n(i, await r(i, o))
     }
   ])
 
-  const request = factory()
+  const r = f()
 
-  const output = await request('z')
+  const o = await r('z')
 
-  expect(output).toEqual('abc')
+  expect(o).toEqual('abc')
+})
+
+test("nested 2", async () => {
+  const f = m([
+    n => async (i) => n(i, 'a'),
+    n => async (i, o) => n(
+      i,
+      await m([
+        n => async (i, o) => n(i, o + 'b'),
+        n => async (i, o) => n(i, o + 'c')
+      ])()(i, o)
+    )
+  ])
+
+  const r = f()
+
+  const o = await r('z')
+
+  expect(o).toEqual('abc')
 })
