@@ -1,4 +1,5 @@
 const { inspect } = require("util");
+const { makeEndpoint } = require("./make-endpoint");
 const fetch = require("./fetch");
 const m = require("./middleware");
 
@@ -90,16 +91,27 @@ test("mixed use with objects", async () => {
     };
   };
 
-  const makeTodoClient = () => {
+  const makeTodoClient = ({ protocol, domain, subdomains, basePath }) => {
+    const endpoint = makeEndpoint({ protocol, domain, subdomains, basePath });
+
     const commonClient = makeCommonClient({
-      middlewares: [fetch],
+      middlewares: [
+        (n) => async (i, o) => {
+          const { url } = i;
+
+          console.log(url);
+
+          return await n(i, o);
+        },
+        fetch,
+      ],
     });
 
     const getById = async function (id) {
       const request = this.pipeline();
 
       return request({
-        url: `https://jsonplaceholder.typicode.com/todos/${id}`,
+        url: endpoint.getUrl(id),
       });
     };
 
@@ -109,7 +121,11 @@ test("mixed use with objects", async () => {
     };
   };
 
-  const client = makeTodoClient();
+  const client = makeTodoClient({
+    subdomains: ["jsonplaceholder"],
+    domain: "typicode.com",
+    basePath: "/todos",
+  });
 
   const todo = await client.getById(1);
 
