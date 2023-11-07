@@ -1,38 +1,9 @@
-
-const mid = ({ use = [] }) => {
-  return () => {
-    return async (input) => {
-      const list = use.slice(0)
-
-      let output
-
-      let keep = true
-
-      let current = list.shift()
-
-      const next = (input, newOutput) => {
-        output = newOutput
-
-        current = list.shift()
-
-        keep = !!current
-      }
-
-      while (keep) {
-        keep = false
-
-        await current(next)(input, output)
-      }
-
-      return output
-    }
-  }
-}
+const middleware = require('./middleware')
 
 test("", async () => {
-  const client = mid({
+  const client = middleware({
     use: [
-      n => async (i, o) => { n(i, 'a') },
+      n => async (i) => { n(i, 'a') },
       n => async (i, o) => { n(i, o + 'b') },
       n => async (i, o) => { n(i, o + 'c') }
     ]

@@ -22,5 +22,9 @@ module.exports = {
         "ecmaVersion": "latest"
     },
     "rules": {
+    },
+    "globals": {
+        "expect": "",
+        "test": ""
     }
 }
