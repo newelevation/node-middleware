@@ -1,7 +1,7 @@
 const { duration } = require("./lib/duration");
 const { fetch } = require("./lib/fetch");
 const { logFetchRequestInfo } = require("./lib/log-fetch-request-info");
-const { makeEndpoint } = require("./make-endpoint");
+const { makeEndpoint } = require("./helpers/make-endpoint");
 const { makePipeline } = require("./middleware");
 const { setHeaders } = require("./lib/set-headers");
 
