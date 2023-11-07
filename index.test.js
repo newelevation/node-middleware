@@ -59,7 +59,9 @@ test("nested 2", async () => {
 });
 
 test("http", async () => {
-  const f = m([fetch]);
+  const f = m([
+    fetch
+  ]);
 
   const r = f();
 
