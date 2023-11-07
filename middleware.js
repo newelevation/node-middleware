@@ -1,27 +1,22 @@
-
 const middleware = (use = []) => {
   const factory = () => {
-    return async (input, outputSeed) => {
+    return async (input, output) => {
       const list = use.slice(0);
 
-      let output = outputSeed;
+      const next = async (input, output) => {
+        const current = list.shift();
 
-      let keep = true;
+        if (current) {
+          return await current(next)(input, output);
+        }
 
-      let current = list.shift();
-
-      const next = (input, newOutput) => {
-        output = newOutput;
-
-        current = list.shift();
-
-        keep = !!current;
+        return output;
       };
 
-      while (keep) {
-        keep = false;
+      const head = list.shift();
 
-        await current(next)(input, output);
+      if (head) {
+        return await head(next)(input, output);
       }
 
       return output;

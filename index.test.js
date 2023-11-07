@@ -1,12 +1,12 @@
-const m = require("./middleware");
-
+const { inspect } = require("util");
 const fetch = require("./fetch");
+const m = require("./middleware");
 
 test("linear", async () => {
   const f = m([
-    (n) => async (i) => n(i, "a"),
-    (n) => async (i, o) => n(i, o + "b"),
-    (n) => async (i, o) => n(i, o + "c"),
+    (n) => async (i) => await n(i, "a"),
+    (n) => async (i, o) => await n(i, o + "b"),
+    (n) => async (i, o) => await n(i, o + "c"),
   ]);
 
   const r = f();
@@ -18,35 +18,13 @@ test("linear", async () => {
 
 test("nested", async () => {
   const f = m([
-    (n) => async (i) => n(i, "a"),
-    (n) => async (i, o) => {
-      const f = m([
-        (n) => async (i, o) => n(i, o + "b"),
-        (n) => async (i, o) => n(i, o + "c"),
-      ]);
-
-      const r = f();
-
-      n(i, await r(i, o));
-    },
-  ]);
-
-  const r = f();
-
-  const o = await r("z");
-
-  expect(o).toEqual("abc");
-});
-
-test("nested 2", async () => {
-  const f = m([
-    (n) => async (i) => n(i, "a"),
+    (n) => async (i) => await n(i, "a"),
     (n) => async (i, o) =>
-      n(
+      await n(
         i,
         await m([
-          (n) => async (i, o) => n(i, o + "b"),
-          (n) => async (i, o) => n(i, o + "c"),
+          (n) => async (i, o) => await n(i, o + "b"),
+          (n) => async (i, o) => await n(i, o + "c"),
         ])()(i, o),
       ),
   ]);
@@ -60,7 +38,35 @@ test("nested 2", async () => {
 
 test("http", async () => {
   const f = m([
-    fetch
+    (n) => async (i, o) =>
+      await n(
+        {
+          ...i,
+          headers: {
+            "content-type": "text/plain",
+          },
+        },
+        o,
+      ),
+    (n) => async (i, o) => {
+      try {
+        console.time("duration");
+
+        return await n(i, o);
+      } finally {
+        console.timeEnd("duration");
+      }
+    },
+    fetch,
+    (n) => async (i, o) => {
+      console.log(
+        [`${i.method ?? "GET"} ${i.url}`, `${inspect(o, false, 3, true)}`].join(
+          "\n",
+        ),
+      );
+
+      return await n(i, o);
+    },
   ]);
 
   const r = f();
