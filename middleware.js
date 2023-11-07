@@ -1,9 +1,11 @@
+const tip = Symbol.for('tip')
+
 const middleware = ({ use = [] }) => {
-  return () => {
-    return async (input) => {
+  const factory = () => {
+    return async (input, outputSeed) => {
       const list = use.slice(0);
 
-      let output;
+      let output = outputSeed;
 
       let keep = true;
 
@@ -20,12 +22,22 @@ const middleware = ({ use = [] }) => {
       while (keep) {
         keep = false;
 
-        await current(next)(input, output);
+        if (tip in current) {
+          let request = current()
+
+          next(input, await request(input, output))
+        } else {
+          await current(next)(input, output);
+        }
       }
 
       return output;
     };
   };
+
+  factory[tip] = true
+
+  return factory
 };
 
 module.exports = middleware
