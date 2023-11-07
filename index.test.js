@@ -82,22 +82,38 @@ test("http", async () => {
 });
 
 test("mix with objects", async () => {
-  const makeCommonClient = () => {};
+  const makeCommonClient = ({ middlewares }) => {
+    const pipeline = m(middlewares);
+
+    return {
+      pipeline,
+    };
+  };
 
   const makeTodoClient = () => {
-    const commonClient = makeCommonClient();
+    const commonClient = makeCommonClient({
+      middlewares: [fetch],
+    });
 
-    const getOne = () => {};
+    const getById = async function (id) {
+      const request = this.pipeline();
+
+      return request({
+        url: `https://jsonplaceholder.typicode.com/todos/${id}`,
+      });
+    };
 
     return {
       ...commonClient,
-      getOne,
+      getById,
     };
   };
 
   const client = makeTodoClient();
 
-  expect(client.getOne(1)).toEqual({
+  const todo = await client.getById(1);
+
+  expect(todo).toEqual({
     completed: false,
     id: 1,
     title: "delectus aut autem",
