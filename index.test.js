@@ -1,10 +1,12 @@
-const { inspect } = require("util");
+const { duration } = require("./lib/duration");
+const { fetch } = require("./lib/fetch");
+const { logFetch } = require("./lib/log-fetch");
 const { makeEndpoint } = require("./make-endpoint");
-const fetch = require("./fetch");
-const m = require("./middleware");
+const { makeMiddleware } = require("./middleware");
+const { setHeaders } = require("./lib/set-headers");
 
 test("linear", async () => {
-  const f = m([
+  const f = makeMiddleware([
     (n) => async (i) => await n(i, "a"),
     (n) => async (i, o) => await n(i, o + "b"),
     (n) => async (i, o) => await n(i, o + "c"),
@@ -18,12 +20,12 @@ test("linear", async () => {
 });
 
 test("nested", async () => {
-  const f = m([
+  const f = makeMiddleware([
     (n) => async (i) => await n(i, "a"),
     (n) => async (i, o) =>
       await n(
         i,
-        await m([
+        await makeMiddleware([
           (n) => async (i, o) => await n(i, o + "b"),
           (n) => async (i, o) => await n(i, o + "c"),
         ])()(i, o),
@@ -38,36 +40,11 @@ test("nested", async () => {
 });
 
 test("http", async () => {
-  const f = m([
-    (n) => async (i, o) =>
-      await n(
-        {
-          ...i,
-          headers: {
-            "content-type": "text/plain",
-          },
-        },
-        o,
-      ),
-    (n) => async (i, o) => {
-      try {
-        console.time("duration");
-
-        return await n(i, o);
-      } finally {
-        console.timeEnd("duration");
-      }
-    },
+  const f = makeMiddleware([
+    setHeaders({ "content-type": "text/plain" }),
+    duration,
     fetch,
-    (n) => async (i, o) => {
-      console.log(
-        [`${i.method ?? "GET"} ${i.url}`, `${inspect(o, false, 3, true)}`].join(
-          "\n",
-        ),
-      );
-
-      return await n(i, o);
-    },
+    logFetch,
   ]);
 
   const r = f();
@@ -84,7 +61,7 @@ test("http", async () => {
 
 test("mixed use with objects", async () => {
   const makeCommonClient = ({ middlewares }) => {
-    const pipeline = m(middlewares);
+    const pipeline = makeMiddleware(middlewares);
 
     return {
       pipeline,
