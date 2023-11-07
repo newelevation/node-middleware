@@ -1,4 +1,4 @@
-const makeMiddleware = (use = []) => {
+const makePipeline = (use = []) => {
   const factory = () => {
     return async (input, output) => {
       const list = use.slice(0);
@@ -26,4 +26,4 @@ const makeMiddleware = (use = []) => {
   return factory;
 };
 
-module.exports.makeMiddleware = makeMiddleware;
+module.exports.makePipeline = makePipeline;

@@ -2,11 +2,11 @@ const { duration } = require("./lib/duration");
 const { fetch } = require("./lib/fetch");
 const { logFetchRequestInfo } = require("./lib/log-fetch-request-info");
 const { makeEndpoint } = require("./make-endpoint");
-const { makeMiddleware } = require("./middleware");
+const { makePipeline } = require("./middleware");
 const { setHeaders } = require("./lib/set-headers");
 
 test("linear", async () => {
-  const f = makeMiddleware([
+  const f = makePipeline([
     (n) => async (i) => await n(i, "a"),
     (n) => async (i, o) => await n(i, o + "b"),
     (n) => async (i, o) => await n(i, o + "c"),
@@ -20,12 +20,12 @@ test("linear", async () => {
 });
 
 test("nested", async () => {
-  const f = makeMiddleware([
+  const f = makePipeline([
     (n) => async (i) => await n(i, "a"),
     (n) => async (i, o) =>
       await n(
         i,
-        await makeMiddleware([
+        await makePipeline([
           (n) => async (i, o) => await n(i, o + "b"),
           (n) => async (i, o) => await n(i, o + "c"),
         ])()(i, o),
@@ -40,7 +40,7 @@ test("nested", async () => {
 });
 
 test("http", async () => {
-  const f = makeMiddleware([
+  const f = makePipeline([
     setHeaders({ "content-type": "text/plain" }),
     duration,
     fetch,
@@ -61,7 +61,7 @@ test("http", async () => {
 
 test("mixed use with objects", async () => {
   const makeCommonClient = ({ middlewares }) => {
-    const pipeline = makeMiddleware(middlewares);
+    const pipeline = makePipeline(middlewares);
 
     return {
       pipeline,
