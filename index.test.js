@@ -1,6 +1,6 @@
 const { duration } = require("./lib/duration");
 const { fetch } = require("./lib/fetch");
-const { logFetch } = require("./lib/log-fetch");
+const { logFetchRequestInfo } = require("./lib/log-fetch-request-info");
 const { makeEndpoint } = require("./make-endpoint");
 const { makeMiddleware } = require("./middleware");
 const { setHeaders } = require("./lib/set-headers");
@@ -44,7 +44,7 @@ test("http", async () => {
     setHeaders({ "content-type": "text/plain" }),
     duration,
     fetch,
-    logFetch,
+    logFetchRequestInfo,
   ]);
 
   const r = f();
@@ -72,16 +72,7 @@ test("mixed use with objects", async () => {
     const endpoint = makeEndpoint({ protocol, domain, subdomains, basePath });
 
     const commonClient = makeCommonClient({
-      middlewares: [
-        (n) => async (i, o) => {
-          const { url } = i;
-
-          console.log(url);
-
-          return await n(i, o);
-        },
-        fetch,
-      ],
+      middlewares: [logFetchRequestInfo, fetch],
     });
 
     const getById = async function (id) {
