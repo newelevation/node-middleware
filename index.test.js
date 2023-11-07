@@ -78,9 +78,7 @@ test("mixed use with objects", async () => {
     const getById = async function (id) {
       const request = this.pipeline();
 
-      return request({
-        url: endpoint.getUrl(id),
-      });
+      return request({ url: endpoint.getUrl(id) });
     };
 
     return {
