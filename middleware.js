@@ -1,6 +1,6 @@
 const tip = Symbol.for('tip')
 
-const middleware = ({ use = [] }) => {
+const middleware = (use = []) => {
   const factory = () => {
     return async (input, outputSeed) => {
       const list = use.slice(0);
