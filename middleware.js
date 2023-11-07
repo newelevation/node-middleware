@@ -1,4 +1,4 @@
-const tip = Symbol.for('tip')
+const tip = Symbol.for("tip");
 
 const middleware = (use = []) => {
   const factory = () => {
@@ -23,9 +23,9 @@ const middleware = (use = []) => {
         keep = false;
 
         if (tip in current) {
-          let request = current()
+          let request = current();
 
-          next(input, await request(input, output))
+          next(input, await request(input, output));
         } else {
           await current(next)(input, output);
         }
@@ -35,9 +35,9 @@ const middleware = (use = []) => {
     };
   };
 
-  factory[tip] = true
+  factory[tip] = true;
 
-  return factory
+  return factory;
 };
 
-module.exports = middleware
+module.exports = middleware;
