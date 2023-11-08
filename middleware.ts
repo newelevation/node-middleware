@@ -1,6 +1,6 @@
 export type MiddlewareHandler = (i: any, o: any) => Promise<any>;
 
-export type Next = MiddlewareHandler;
+export type Next = (i: any, o: any) => Promise<any>;
 
 export type Middleware = (n: Next) => MiddlewareHandler;
 
