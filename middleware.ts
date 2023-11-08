@@ -1,8 +1,10 @@
-type N = (i: any, o: any) => Promise<any>;
+export type MiddlewareHandler = (i: any, o: any) => Promise<any>;
 
-type M = (n: N) => (i: any, o: any) => Promise<any>;
+export type Next = MiddlewareHandler;
 
-export const makePipeline = (use: M[] = []) => {
+export type Middleware = (n: Next) => MiddlewareHandler;
+
+export const makePipeline = (use: Middleware[] = []) => {
   const factory = () => {
     return async (input: any, output?: any) => {
       const list = use.slice(0);

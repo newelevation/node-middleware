@@ -1,4 +1,6 @@
-export const duration = (n) => async (i, o) => {
+import { Middleware } from "../middleware";
+
+export const duration: Middleware = (n) => async (i, o) => {
   try {
     console.time("duration");
 
