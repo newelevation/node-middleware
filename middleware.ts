@@ -1,16 +1,18 @@
 export type MiddlewareHandler<Input = any> = (
   input: Input,
-  output?: any,
+  output?: any
 ) => Promise<any>;
 
 export type Next = (input: any, output: any) => Promise<any>;
+
+export const getOutput: Next = async (_, output) => output;
 
 export type Middleware<Input = any> = (next: Next) => MiddlewareHandler<Input>;
 
 export type Pipeline<Input = any> = () => MiddlewareHandler<Input>;
 
 export const makePipeline = <Input>(
-  use: Middleware[] = [],
+  use: Middleware[] = []
 ): Pipeline<Input> => {
   const factory = () => {
     return async (input: any, output?: any) => {

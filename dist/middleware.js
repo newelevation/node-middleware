@@ -19,9 +19,11 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // middleware.ts
 var middleware_exports = {};
 __export(middleware_exports, {
+  getOutput: () => getOutput,
   makePipeline: () => makePipeline
 });
 module.exports = __toCommonJS(middleware_exports);
+var getOutput = async (_, output) => output;
 var makePipeline = (use = []) => {
   const factory = () => {
     return async (input, output) => {
@@ -44,6 +46,7 @@ var makePipeline = (use = []) => {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  getOutput,
   makePipeline
 });
 //# sourceMappingURL=middleware.js.map

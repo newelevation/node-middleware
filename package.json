@@ -1,6 +1,6 @@
 {
   "name": "middleware",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "main": "dist/middleware.js",
   "types": "dist/middleware.d.ts",
   "scripts": {
