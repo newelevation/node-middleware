@@ -5,8 +5,6 @@ export type MiddlewareHandler<Input = any> = (
 
 export type Next = (input: any, output: any) => Promise<any>;
 
-export const getOutput: Next = async (_, output) => output;
-
 export type Middleware<Input = any> = (next: Next) => MiddlewareHandler<Input>;
 
 export type Pipeline<Input = any> = () => MiddlewareHandler<Input>;
@@ -40,3 +38,5 @@ export const makePipeline = <Input>(
 
   return factory;
 };
+
+export const passOutputAlong: Next = async (_, output) => output;
