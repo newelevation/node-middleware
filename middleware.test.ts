@@ -1,4 +1,4 @@
-import { MakeEndpointOptions, makeEndpoint } from "./helpers/make-endpoint";
+import { MakeEndpointOptions, makeEndpoint } from "./helpers/endpoint";
 import { duration } from "./lib/duration";
 import { fetch } from "./lib/fetch";
 import { logFetchRequestInfo } from "./lib/log-fetch-request-info";

@@ -1,4 +1,4 @@
-import { makeEndpoint } from "./make-endpoint";
+import { makeEndpoint } from "./endpoint";
 
 test("happy path", () => {
   const endpoint = makeEndpoint({

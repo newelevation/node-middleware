@@ -9,7 +9,7 @@ export const makePipeline = (use: Middleware[] = []) => {
     return async (input: any, output?: any) => {
       const list = use.slice(0);
 
-      const next = async (input, output) => {
+      const next: Next = async (input, output) => {
         const current = list.shift();
 
         if (current) {
