@@ -1,8 +1,8 @@
-export type MiddlewareHandler = (i: any, o: any) => Promise<any>;
+export type MiddlewareHandler = (input: any, output: any) => Promise<any>;
 
-export type Next = (i: any, o: any) => Promise<any>;
+export type Next = (input: any, output: any) => Promise<any>;
 
-export type Middleware = (n: Next) => MiddlewareHandler;
+export type Middleware = (next: Next) => MiddlewareHandler;
 
 export const makePipeline = (use: Middleware[] = []) => {
   const factory = () => {
