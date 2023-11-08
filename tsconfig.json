@@ -7,22 +7,13 @@
     "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "jsx": "react",
-    "lib": [
-      "DOM",
-      "ES2020",
-      "ESNext.AsyncIterable"
-    ],
+    "lib": ["DOM", "ES2020", "ESNext.AsyncIterable"],
     "module": "CommonJS",
     "moduleResolution": "node",
     "outDir": "./dist",
     "skipLibCheck": true,
     "target": "ES2020"
   },
-  "exclude": [
-    "**/dist/*",
-    "**/node_modules/*"
-  ],
-  "include": [
-    "./middleware.ts"
-  ]
+  "exclude": ["**/dist/*", "**/node_modules/*"],
+  "include": ["./middleware.ts"]
 }

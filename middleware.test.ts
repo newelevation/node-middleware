@@ -7,9 +7,9 @@ import { makePipeline } from "./middleware";
 
 test("linear", async () => {
   const f = makePipeline([
-    (n) => async (i) => await n(i, "a"),
-    (n) => async (i, o) => await n(i, o + "b"),
-    (n) => async (i, o) => await n(i, o + "c"),
+    (n) => async (i) => await n?.(i, "a"),
+    (n) => async (i, o) => await n?.(i, o + "b"),
+    (n) => async (i, o) => await n?.(i, o + "c"),
   ]);
 
   const r = f();
@@ -21,13 +21,13 @@ test("linear", async () => {
 
 test("nested", async () => {
   const f = makePipeline([
-    (n) => async (i) => await n(i, "a"),
+    (n) => async (i) => await n?.(i, "a"),
     (n) => async (i, o) =>
-      await n(
+      await n?.(
         i,
         await makePipeline([
-          (n) => async (i, o) => await n(i, o + "b"),
-          (n) => async (i, o) => await n(i, o + "c"),
+          (n) => async (i, o) => await n?.(i, o + "b"),
+          (n) => async (i, o) => await n?.(i, o + "c"),
         ])()(i, o),
       ),
   ]);
