@@ -1,3 +1,7 @@
+export type PipelineOptions<Input = any> = {
+  middlewares: Middleware<Input>[];
+};
+
 export type MiddlewareHandler<Input = any> = (
   input: Input,
   output?: any,
