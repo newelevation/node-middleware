@@ -1,7 +1,7 @@
-export type MiddlewareHandler<Input = any> = (
+export type MiddlewareHandler<Input = any, Output = any> = (
   input: Input,
-  output?: any
-) => Promise<any>;
+  output?: Output,
+) => Promise<Output>;
 
 export type Next = (input: any, output: any) => Promise<any>;
 
@@ -10,7 +10,7 @@ export type Middleware<Input = any> = (next: Next) => MiddlewareHandler<Input>;
 export type Pipeline<Input = any> = () => MiddlewareHandler<Input>;
 
 export const makePipeline = <Input>(
-  use: Middleware[] = []
+  use: Middleware[] = [],
 ): Pipeline<Input> => {
   const factory = () => {
     return async (input: any, output?: any) => {
