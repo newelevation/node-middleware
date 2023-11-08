@@ -1,5 +1,8 @@
 build
 coverage
-dist
+dist/*
 node_modules
 out
+
+!dist/middleware.js
+!dist/middleware.d.ts
