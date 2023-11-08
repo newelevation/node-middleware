@@ -2,6 +2,7 @@
   "name": "middleware",
   "version": "0.0.2",
   "main": "middleware.ts",
+  "types": "middleware.ts",
   "scripts": {
     "format": "npx prettier . --write",
     "lint": "eslint --fix",
