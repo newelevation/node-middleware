@@ -6,8 +6,10 @@
   "scripts": {
     "build": "esbuild ./middleware.ts --bundle --sourcemap --platform=node --target=node18 --outfile=dist/middleware.js && tsc --emitDeclarationOnly",
     "format": "npx prettier . --write",
-    "lint": "eslint --fix",
-    "test:watch": "jest . --watch --coverage"
+    "lint": "tsc --noEmit && eslint --fix",
+    "pushpatch": "pnpm lint && pnpm format && pnpm test && pnpm build && bash cx && pnpm version patch && bash cx",
+    "test:watch": "jest . --watch --coverage",
+    "test": "jest ."
   },
   "keywords": [],
   "author": "",
