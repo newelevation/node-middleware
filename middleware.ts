@@ -7,13 +7,16 @@ export type Next = (input: any, output: any) => Promise<any>;
 
 export type Middleware<Input = any> = (next: Next) => MiddlewareHandler<Input>;
 
-export type Pipeline<Input = any> = () => MiddlewareHandler<Input>;
+export type Pipeline<Input = any> = <Output>() => MiddlewareHandler<
+  Input,
+  Output
+>;
 
 export const makePipeline = <Input>(
   use: Middleware[] = [],
 ): Pipeline<Input> => {
-  const factory = () => {
-    return async (input: any, output?: any) => {
+  const pipeline: Pipeline<Input> = <Output>() => {
+    return async (input: Input, output?: Output) => {
       const list = use.slice(0);
 
       const next: Next = async (input, output) => {
@@ -36,7 +39,7 @@ export const makePipeline = <Input>(
     };
   };
 
-  return factory;
+  return pipeline;
 };
 
 export const passOutputAlong: Next = async (_, output) => output;

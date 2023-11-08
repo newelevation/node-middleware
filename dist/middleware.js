@@ -24,7 +24,7 @@ __export(middleware_exports, {
 });
 module.exports = __toCommonJS(middleware_exports);
 var makePipeline = (use = []) => {
-  const factory = () => {
+  const pipeline = () => {
     return async (input, output) => {
       const list = use.slice(0);
       const next = async (input2, output2) => {
@@ -41,7 +41,7 @@ var makePipeline = (use = []) => {
       return output;
     };
   };
-  return factory;
+  return pipeline;
 };
 var passOutputAlong = async (_, output) => output;
 // Annotate the CommonJS export names for ESM import in node:
