@@ -1,6 +1,6 @@
 {
   "name": "middleware",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "main": "middleware.ts",
   "types": "middleware.ts",
   "scripts": {
