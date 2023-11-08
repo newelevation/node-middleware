@@ -1,4 +1,4 @@
-const setHeaders = (headers) => (n) => async (i, o) =>
+export const setHeaders = (headers) => (n) => async (i, o) =>
   await n(
     {
       ...i,
@@ -9,5 +9,3 @@ const setHeaders = (headers) => (n) => async (i, o) =>
     },
     o,
   );
-
-module.exports.setHeaders = setHeaders;

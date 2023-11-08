@@ -1,4 +1,4 @@
-const { makeEndpoint } = require("./make-endpoint");
+import { makeEndpoint } from "./make-endpoint";
 
 test("happy path", () => {
   const endpoint = makeEndpoint({

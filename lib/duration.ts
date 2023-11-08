@@ -1,4 +1,4 @@
-const duration = (n) => async (i, o) => {
+export const duration = (n) => async (i, o) => {
   try {
     console.time("duration");
 
@@ -7,5 +7,3 @@ const duration = (n) => async (i, o) => {
     console.timeEnd("duration");
   }
 };
-
-module.exports.duration = duration;

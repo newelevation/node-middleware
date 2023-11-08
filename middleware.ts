@@ -1,6 +1,10 @@
-const makePipeline = (use = []) => {
+type N = (i: any, o: any) => Promise<any>;
+
+type M = (n: N) => (i: any, o: any) => Promise<any>;
+
+export const makePipeline = (use: M[] = []) => {
   const factory = () => {
-    return async (input, output) => {
+    return async (input: any, output?: any) => {
       const list = use.slice(0);
 
       const next = async (input, output) => {
@@ -25,5 +29,3 @@ const makePipeline = (use = []) => {
 
   return factory;
 };
-
-module.exports.makePipeline = makePipeline;

@@ -1,6 +1,6 @@
-const { default: nodeFetch } = require("node-fetch-cjs");
+import nodeFetch from "node-fetch-cjs";
 
-const fetch = (n) => async (i, o) => {
+export const fetch = (n) => async (i, o) => {
   const { url, ...info } = i;
 
   const r = await nodeFetch(url, info);
@@ -17,5 +17,3 @@ const fetch = (n) => async (i, o) => {
 
   return n(i, await r.arrayBuffer());
 };
-
-module.exports.fetch = fetch;

@@ -1,9 +1,9 @@
-const { duration } = require("./lib/duration");
-const { fetch } = require("./lib/fetch");
-const { logFetchRequestInfo } = require("./lib/log-fetch-request-info");
-const { makeEndpoint } = require("./helpers/make-endpoint");
-const { makePipeline } = require("./middleware");
-const { setHeaders } = require("./lib/set-headers");
+import { MakeEndpointOptions, makeEndpoint } from "./helpers/make-endpoint";
+import { duration } from "./lib/duration";
+import { fetch } from "./lib/fetch";
+import { logFetchRequestInfo } from "./lib/log-fetch-request-info";
+import { setHeaders } from "./lib/set-headers";
+import { makePipeline } from "./middleware";
 
 test("linear", async () => {
   const f = makePipeline([
@@ -68,7 +68,9 @@ test("mixed use with objects", async () => {
     };
   };
 
-  const makeTodoClient = ({ protocol, domain, subdomains, basePath }) => {
+  type O = MakeEndpointOptions;
+
+  const makeTodoClient = ({ protocol, domain, subdomains, basePath }: O) => {
     const endpoint = makeEndpoint({ protocol, domain, subdomains, basePath });
 
     const commonClient = makeCommonClient({
