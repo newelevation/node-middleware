@@ -8,7 +8,7 @@
     "format": "npx prettier . --write",
     "lint": "tsc --noEmit && eslint --fix",
     "test:watch": "jest . --watch --coverage",
-    "test": "jest ."
+    "test": "jest . --coverage"
   },
   "keywords": [],
   "author": "",
