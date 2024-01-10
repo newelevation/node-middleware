@@ -6,52 +6,54 @@ import { setHeaders } from "./lib/set-headers";
 import { makePipeline } from "./middleware";
 
 test("linear", async () => {
-  const f = makePipeline([
-    (n) => async (i) => await n(i, "a"),
-    (n) => async (i, o) => await n(i, o + "b"),
-    (n) => async (i, o) => await n(i, o + "c"),
+  const pipeline = makePipeline([
+    (next) => async (input) => await next(input, input + " b"),
+    (next) => async (input, output) => await next(input, output + "a"),
+    (next) => async (input, output) => await next(input, output + "r"),
   ]);
 
-  const r = f();
+  const request = pipeline();
 
-  const o = await r("z");
+  const reply = await request("foo");
 
-  expect(o).toEqual("abc");
+  expect(reply).toEqual("foo bar");
 });
 
 test("nested", async () => {
-  const f = makePipeline([
-    (n) => async (i) => await n(i, "a"),
-    (n) => async (i, o) =>
-      await n(
-        i,
+  const pipeline = makePipeline([
+    (next) => async (input) => await next(input, "a"),
+    (next) => async (input, output) =>
+      await next(
+        input,
         await makePipeline([
-          (n) => async (i, o) => await n(i, o + "b"),
-          (n) => async (i, o) => await n(i, o + "c"),
-        ])()(i, o),
+          (next) => async (input, output) => await next(input, output + "b"),
+          (next) => async (input, output) => await next(input, output + "c"),
+        ])()(input, output),
       ),
   ]);
 
-  const r = f();
+  const request = pipeline();
 
-  const o = await r("z");
+  const reply = await request("z");
 
-  expect(o).toEqual("abc");
+  expect(reply).toEqual("abc");
 });
 
 test("http", async () => {
-  const f = makePipeline([
+  const pipeline = makePipeline([
     setHeaders({ "content-type": "text/plain" }),
     duration,
     fetch,
     logFetchRequestInfo,
   ]);
 
-  const r = f();
+  const request = pipeline();
 
-  const o = await r({ url: "https://jsonplaceholder.typicode.com/todos/1" });
+  const reply = await request({
+    url: "https://jsonplaceholder.typicode.com/todos/1",
+  });
 
-  expect(o).toEqual({
+  expect(reply).toEqual({
     completed: false,
     id: 1,
     title: "delectus aut autem",
@@ -68,9 +70,12 @@ test("mixed use with objects", async () => {
     };
   };
 
-  type O = MakeEndpointOptions;
-
-  const makeTodoClient = ({ protocol, domain, subdomains, basePath }: O) => {
+  const makeTodoClient = ({
+    protocol,
+    domain,
+    subdomains,
+    basePath,
+  }: MakeEndpointOptions) => {
     const endpoint = makeEndpoint({ protocol, domain, subdomains, basePath });
 
     const commonClient = makeCommonClient({
@@ -103,4 +108,24 @@ test("mixed use with objects", async () => {
     title: "delectus aut autem",
     userId: 1,
   });
+});
+
+test("named middlewares", async () => {
+  const pipeline = makePipeline([
+    (next) => async (input) => await next(input, input + " b"),
+    [
+      "adds a",
+      (next) => async (input, output) => await next(input, output + "a"),
+    ],
+    [
+      "adds r",
+      (next) => async (input, output) => await next(input, output + "r"),
+    ],
+  ]);
+
+  const request = pipeline();
+
+  const reply = await request("foo");
+
+  expect(reply).toEqual("foo bar");
 });
