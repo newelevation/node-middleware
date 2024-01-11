@@ -1,7 +1,7 @@
 import { inspect } from "util";
-import { UnamedMiddleware } from "../middleware";
+import { Middleware } from "../middleware";
 
-export const logFetchRequestInfo: UnamedMiddleware = (n) => async (i, o) => {
+export const logFetchRequestInfo: Middleware = (n) => async (i, o) => {
   console.log(
     [`${i.method ?? "GET"} ${i.url}`, `${inspect(o, false, 3, true)}`].join(
       "\n",

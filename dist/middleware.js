@@ -5546,17 +5546,21 @@ var makePipeline = (use = []) => {
 };
 var passOutputAlong = async (_, output) => output;
 function makeInsertions(use, insertions) {
-  const list = use.slice(0);
-  for (const [placement, name, item] of insertions) {
-    const index = list.findIndex((m) => (0, import_lodash.isArray)(m) && name === m[0]);
+  const source = insertions.slice(0);
+  source.reverse();
+  const target = use.slice(0);
+  for (const [placement, name, item] of source) {
+    const index = target.findIndex(
+      (middleware) => (0, import_lodash.isArray)(middleware) && name === middleware[0]
+    );
     if (index < 0) {
       throw new Error(
         `could not find middleware named: ${JSON.stringify(name)}`
       );
     }
-    list.splice(placement === "before" ? index : index + 1, 0, item);
+    target.splice(placement === "before" ? index : index + 1, 0, item);
   }
-  return list;
+  return target;
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

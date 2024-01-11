@@ -3,7 +3,7 @@ import { duration } from "./lib/duration";
 import { fetch } from "./lib/fetch";
 import { logFetchRequestInfo } from "./lib/log-fetch-request-info";
 import { setHeaders } from "./lib/set-headers";
-import { Middleware, makePipeline } from "./middleware";
+import { Middleware, PipelineMiddleware, makePipeline } from "./middleware";
 
 test("linear", async () => {
   const pipeline = makePipeline([
@@ -197,7 +197,7 @@ test("throws a error if can not find the insertion reference", async () => {
 });
 
 test("insertion does not affect the input list", async () => {
-  const list: Middleware[] = [
+  const list: PipelineMiddleware[] = [
     (next) => async (input) => await next(input, input + " b"),
     [
       "adds r",
@@ -242,4 +242,67 @@ test("normal pipeline execution does not affect the input list", async () => {
   expect(reply).toEqual("foo bar");
 
   expect(list).toHaveLength(3);
+});
+
+test("insertions appear in the same order they are passed", async () => {
+  const list: PipelineMiddleware[] = [
+    ["first", (next) => async (input) => await next(input, input + " b")],
+  ];
+
+  const pipeline = makePipeline(list);
+
+  const request = pipeline([
+    [
+      "after",
+      "first",
+      (next) => async (input, output) => await next(input, output + "a"),
+    ],
+    [
+      "after",
+      "first",
+      (next) => async (input, output) => await next(input, output + "r"),
+    ],
+  ]);
+
+  const reply = await request("foo");
+
+  expect(reply).toEqual("foo bar");
+});
+
+test("insertions appear in the same order they are passed", async () => {
+  const list: PipelineMiddleware[] = [
+    ["1st", (next) => async (input) => await next(input, input + "1")],
+    ["2nd", (next) => async (input, output) => await next(input, output + "2")],
+    ["3rd", (next) => async (input, output) => await next(input, output + "3")],
+    ["4th", (next) => async (input, output) => await next(input, output + "4")],
+  ];
+
+  const pipeline = makePipeline(list);
+
+  const request = pipeline([
+    [
+      "after",
+      "1st",
+      (next) => async (input, output) => await next(input, output + "a"),
+    ],
+    [
+      "after",
+      "4th",
+      (next) => async (input, output) => await next(input, output + "d"),
+    ],
+    [
+      "before",
+      "3rd",
+      (next) => async (input, output) => await next(input, output + "c"),
+    ],
+    [
+      "after",
+      "1st",
+      (next) => async (input, output) => await next(input, output + "b"),
+    ],
+  ]);
+
+  const reply = await request("");
+
+  expect(reply).toEqual("1ab2c34d");
 });

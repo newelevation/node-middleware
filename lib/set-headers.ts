@@ -1,6 +1,6 @@
-import { UnamedMiddleware } from "../middleware";
+import { Middleware } from "../middleware";
 
-type SetHeaders = (headers: Record<string, string>) => UnamedMiddleware;
+type SetHeaders = (headers: Record<string, string>) => Middleware;
 
 export const setHeaders: SetHeaders = (headers) => (n) => async (i, o) =>
   await n(

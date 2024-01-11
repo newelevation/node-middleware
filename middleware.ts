@@ -17,7 +17,11 @@ export type PipelineMiddleware<Input = any> =
 
 export type InsertionPlacement = "before" | "after";
 
-export type Insertion = [InsertionPlacement, name: string, Middleware];
+export type Insertion<Input = any> = [
+  InsertionPlacement,
+  name: string,
+  Middleware<Input>,
+];
 
 export type Pipeline<Input = any> = <Output>(
   insertions?: Insertion[],
@@ -65,12 +69,18 @@ export const passOutputAlong: Next = async (_, output) => output;
 
 function makeInsertions(
   use: ReadonlyArray<PipelineMiddleware>,
-  insertions: any[],
+  insertions: ReadonlyArray<Insertion>,
 ): PipelineMiddleware[] {
-  const list = use.slice(0);
+  const source = insertions.slice(0);
 
-  for (const [placement, name, item] of insertions) {
-    const index = list.findIndex((m) => isArray(m) && name === m[0]);
+  source.reverse();
+
+  const target = use.slice(0);
+
+  for (const [placement, name, item] of source) {
+    const index = target.findIndex(
+      (middleware) => isArray(middleware) && name === middleware[0],
+    );
 
     if (index < 0) {
       throw new Error(
@@ -78,8 +88,8 @@ function makeInsertions(
       );
     }
 
-    list.splice(placement === "before" ? index : index + 1, 0, item);
+    target.splice(placement === "before" ? index : index + 1, 0, item);
   }
 
-  return list;
+  return target;
 }
