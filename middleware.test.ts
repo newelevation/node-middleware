@@ -130,7 +130,7 @@ test("named middlewares", async () => {
   expect(reply).toEqual("foo bar");
 });
 
-test("inserts a middleware before", async () => {
+test("places a middleware prior to", async () => {
   const pipeline = makePipeline([
     (next) => async (input) => await next(input, input + " b"),
     [
@@ -152,7 +152,7 @@ test("inserts a middleware before", async () => {
   expect(reply).toEqual("foo bar");
 });
 
-test("inserts a middleware after", async () => {
+test("adds a middleware subsequent to", async () => {
   const pipeline = makePipeline([
     (next) => async (input) => await next(input, input + " b"),
     [
@@ -174,7 +174,7 @@ test("inserts a middleware after", async () => {
   expect(reply).toEqual("foo bar");
 });
 
-test("throws a error if can not find the insertion reference", async () => {
+test("produces an error if the modification reference cannot be found", async () => {
   const pipeline = makePipeline([
     (next) => async (input) => await next(input, input + " b"),
     [
@@ -196,7 +196,7 @@ test("throws a error if can not find the insertion reference", async () => {
   }).rejects.toThrow('could not find middleware named: "foo bar"');
 });
 
-test("insertion does not affect the input list", async () => {
+test("modifications do not affect the original input list", async () => {
   const list: PipelineMiddleware[] = [
     (next) => async (input) => await next(input, input + " b"),
     [
@@ -224,7 +224,7 @@ test("insertion does not affect the input list", async () => {
   expect(list).toHaveLength(2);
 });
 
-test("normal pipeline execution does not affect the input list", async () => {
+test("normal pipelines do not affect the original input list", async () => {
   const list: Middleware[] = [
     (next) => async (input) => await next(input, input + " b"),
     (next) => async (input, output) => await next(input, output + "a"),
@@ -244,7 +244,7 @@ test("normal pipeline execution does not affect the input list", async () => {
   expect(list).toHaveLength(3);
 });
 
-test("insertions appear in the same order they are passed", async () => {
+test("modifications are processed in the same sequence as they are provided", async () => {
   const list: PipelineMiddleware[] = [
     ["first", (next) => async (input) => await next(input, input + " b")],
   ];
@@ -269,7 +269,7 @@ test("insertions appear in the same order they are passed", async () => {
   expect(reply).toEqual("foo bar");
 });
 
-test("insertions appear in the same order they are passed", async () => {
+test("modifications are processed in the same sequence as they are provided ( extended case )", async () => {
   const list: PipelineMiddleware[] = [
     ["1st", (next) => async (input) => await next(input, input + "1")],
     ["2nd", (next) => async (input, output) => await next(input, output + "2")],
@@ -307,7 +307,7 @@ test("insertions appear in the same order they are passed", async () => {
   expect(reply).toEqual("1ab2c34d");
 });
 
-test("middleware replacement", async () => {
+test("substituting middlewares", async () => {
   const pipeline = makePipeline([
     (next) => async (input) => await next(input, input),
     [
@@ -338,7 +338,7 @@ test("middleware replacement", async () => {
   ).toEqual("qux waldo");
 });
 
-test("middleware skipping", async () => {
+test("bypassing middleware processing", async () => {
   const pipeline = makePipeline([
     (next) => async (input) => await next(input, input),
     ["1st", (next) => async (input, output) => await next(input, output + "1")],

@@ -15,20 +15,20 @@ export type PipelineMiddleware<Input = any> =
   | Middleware<Input>
   | NamedMiddleware<Input>;
 
-export type Insertion<Input = any> =
+export type Modification<Input = any> =
   | ["before" | "after" | "replace", name: string, Middleware<Input>]
   | ["skip", name: string];
 
 export type Pipeline<Input = any> = <Output>(
-  insertions?: Insertion[],
+  modifications?: Modification[],
 ) => MiddlewareHandler<Input, Output>;
 
 export const makePipeline = <Input>(
-  use: PipelineMiddleware[] = [],
+  middlewares: PipelineMiddleware[] = [],
 ): Pipeline<Input> => {
-  const pipeline: Pipeline<Input> = <Output>(insertions = []) => {
+  const pipeline: Pipeline<Input> = <Output>(modifications = []) => {
     return async (input: Input, output?: Output) => {
-      const list = makeInsertions(use, insertions);
+      const list = modify(middlewares, modifications);
 
       const next: Next = async (input, output) => {
         const current = list.shift();
@@ -63,19 +63,19 @@ export const makePipeline = <Input>(
 
 export const passOutputAlong: Next = async (_, output) => output;
 
-function makeInsertions(
-  use: ReadonlyArray<PipelineMiddleware>,
-  insertions: ReadonlyArray<Insertion>,
+function modify(
+  middlewares: ReadonlyArray<PipelineMiddleware>,
+  modifications: ReadonlyArray<Modification>,
 ): PipelineMiddleware[] {
-  const source = insertions.slice(0);
+  const source = modifications.slice(0);
 
   source.reverse();
 
-  const target = use.slice(0);
+  const target = middlewares.slice(0);
 
-  for (const [placement, name, item] of source) {
+  for (const [action, name, middleware] of source) {
     const index = target.findIndex(
-      (middleware) => isArray(middleware) && name === middleware[0],
+      (existing) => isArray(existing) && name === existing[0],
     );
 
     if (index < 0) {
@@ -84,12 +84,12 @@ function makeInsertions(
       );
     }
 
-    if (placement === "replace") {
-      target[index][1] = item;
-    } else if (placement === "skip") {
+    if (action === "replace") {
+      target[index][1] = middleware;
+    } else if (action === "skip") {
       target.splice(index, 1);
     } else {
-      target.splice(placement === "before" ? index : index + 1, 0, item);
+      target.splice(action === "before" ? index : index + 1, 0, middleware);
     }
   }
 

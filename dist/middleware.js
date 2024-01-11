@@ -5517,10 +5517,10 @@ __export(middleware_exports, {
 });
 module.exports = __toCommonJS(middleware_exports);
 var import_lodash = __toESM(require_lodash());
-var makePipeline = (use = []) => {
-  const pipeline = (insertions = []) => {
+var makePipeline = (middlewares = []) => {
+  const pipeline = (modifications = []) => {
     return async (input, output) => {
-      const list = makeInsertions(use, insertions);
+      const list = modify(middlewares, modifications);
       const next = async (input2, output2) => {
         const current = list.shift();
         if (current) {
@@ -5545,25 +5545,25 @@ var makePipeline = (use = []) => {
   return pipeline;
 };
 var passOutputAlong = async (_, output) => output;
-function makeInsertions(use, insertions) {
-  const source = insertions.slice(0);
+function modify(middlewares, modifications) {
+  const source = modifications.slice(0);
   source.reverse();
-  const target = use.slice(0);
-  for (const [placement, name, item] of source) {
+  const target = middlewares.slice(0);
+  for (const [action, name, middleware] of source) {
     const index = target.findIndex(
-      (middleware) => (0, import_lodash.isArray)(middleware) && name === middleware[0]
+      (existing) => (0, import_lodash.isArray)(existing) && name === existing[0]
     );
     if (index < 0) {
       throw new Error(
         `could not find middleware named: ${JSON.stringify(name)}`
       );
     }
-    if (placement === "replace") {
-      target[index][1] = item;
-    } else if (placement === "skip") {
+    if (action === "replace") {
+      target[index][1] = middleware;
+    } else if (action === "skip") {
       target.splice(index, 1);
     } else {
-      target.splice(placement === "before" ? index : index + 1, 0, item);
+      target.splice(action === "before" ? index : index + 1, 0, middleware);
     }
   }
   return target;
