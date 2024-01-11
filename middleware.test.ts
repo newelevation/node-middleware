@@ -337,3 +337,22 @@ test("middleware replacement", async () => {
     ])(""),
   ).toEqual("qux waldo");
 });
+
+test("middleware skipping", async () => {
+  const pipeline = makePipeline([
+    (next) => async (input) => await next(input, input),
+    ["1st", (next) => async (input, output) => await next(input, output + "1")],
+    [
+      "2nd",
+      (next) => async (input, output) => await next(input, output + " 2"),
+    ],
+    [
+      "3rd",
+      (next) => async (input, output) => await next(input, output + " 3"),
+    ],
+  ]);
+
+  expect(await pipeline()("")).toEqual("1 2 3");
+
+  expect(await pipeline([["skip", "2nd"]])("")).toEqual("1 3");
+});

@@ -5560,6 +5560,8 @@ function makeInsertions(use, insertions) {
     }
     if (placement === "replace") {
       target[index][1] = item;
+    } else if (placement === "skip") {
+      target.splice(index, 1);
     } else {
       target.splice(placement === "before" ? index : index + 1, 0, item);
     }
