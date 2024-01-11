@@ -7,26 +7,24 @@ export type MiddlewareHandler<Input = any, Output = any> = (
 
 export type Next = (input: any, output: any) => Promise<any>;
 
-export type UnamedMiddleware<Input = any> = (
-  next: Next,
-) => MiddlewareHandler<Input>;
+export type Middleware<Input = any> = (next: Next) => MiddlewareHandler<Input>;
 
-export type NamedMiddleware<Input = any> = [string, UnamedMiddleware<Input>];
+export type NamedMiddleware<Input = any> = [string, Middleware<Input>];
 
-export type Middleware<Input = any> =
-  | UnamedMiddleware<Input>
+export type PipelineMiddleware<Input = any> =
+  | Middleware<Input>
   | NamedMiddleware<Input>;
 
 export type InsertionPlacement = "before" | "after";
 
-export type Insertion = [InsertionPlacement, name: string, UnamedMiddleware];
+export type Insertion = [InsertionPlacement, name: string, Middleware];
 
 export type Pipeline<Input = any> = <Output>(
   insertions?: Insertion[],
 ) => MiddlewareHandler<Input, Output>;
 
 export const makePipeline = <Input>(
-  use: Middleware[] = [],
+  use: PipelineMiddleware[] = [],
 ): Pipeline<Input> => {
   const pipeline: Pipeline<Input> = <Output>(insertions = []) => {
     return async (input: Input, output?: Output) => {
@@ -66,9 +64,9 @@ export const makePipeline = <Input>(
 export const passOutputAlong: Next = async (_, output) => output;
 
 function makeInsertions(
-  use: ReadonlyArray<Middleware>,
+  use: ReadonlyArray<PipelineMiddleware>,
   insertions: any[],
-): Middleware[] {
+): PipelineMiddleware[] {
   const list = use.slice(0);
 
   for (const [placement, name, item] of insertions) {
