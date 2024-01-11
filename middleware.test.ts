@@ -3,7 +3,7 @@ import { duration } from "./lib/duration";
 import { fetch } from "./lib/fetch";
 import { logFetchRequestInfo } from "./lib/log-fetch-request-info";
 import { setHeaders } from "./lib/set-headers";
-import { makePipeline } from "./middleware";
+import { Middleware, makePipeline } from "./middleware";
 
 test("linear", async () => {
   const pipeline = makePipeline([
@@ -128,4 +128,118 @@ test("named middlewares", async () => {
   const reply = await request("foo");
 
   expect(reply).toEqual("foo bar");
+});
+
+test("inserts a middleware before", async () => {
+  const pipeline = makePipeline([
+    (next) => async (input) => await next(input, input + " b"),
+    [
+      "adds r",
+      (next) => async (input, output) => await next(input, output + "r"),
+    ],
+  ]);
+
+  const request = pipeline([
+    [
+      "before",
+      "adds r",
+      (next) => async (input, output) => await next(input, output + "a"),
+    ],
+  ]);
+
+  const reply = await request("foo");
+
+  expect(reply).toEqual("foo bar");
+});
+
+test("inserts a middleware after", async () => {
+  const pipeline = makePipeline([
+    (next) => async (input) => await next(input, input + " b"),
+    [
+      "adds a",
+      (next) => async (input, output) => await next(input, output + "a"),
+    ],
+  ]);
+
+  const request = pipeline([
+    [
+      "after",
+      "adds a",
+      (next) => async (input, output) => await next(input, output + "r"),
+    ],
+  ]);
+
+  const reply = await request("foo");
+
+  expect(reply).toEqual("foo bar");
+});
+
+test("throws a error if can not find the insertion reference", async () => {
+  const pipeline = makePipeline([
+    (next) => async (input) => await next(input, input + " b"),
+    [
+      "adds r",
+      (next) => async (input, output) => await next(input, output + "r"),
+    ],
+  ]);
+
+  const request = pipeline([
+    [
+      "before",
+      "foo bar",
+      (next) => async (input, output) => await next(input, output + "a"),
+    ],
+  ]);
+
+  await expect(async () => {
+    await request("foo");
+  }).rejects.toThrow('could not find middleware named: "foo bar"');
+});
+
+test("insertion does not affect the input list", async () => {
+  const list: Middleware[] = [
+    (next) => async (input) => await next(input, input + " b"),
+    [
+      "adds r",
+      (next) => async (input, output) => await next(input, output + "r"),
+    ],
+  ];
+
+  const pipeline = makePipeline(list);
+
+  expect(list).toHaveLength(2);
+
+  const request = pipeline([
+    [
+      "before",
+      "adds r",
+      (next) => async (input, output) => await next(input, output + "a"),
+    ],
+  ]);
+
+  const reply = await request("foo");
+
+  expect(reply).toEqual("foo bar");
+
+  expect(list).toHaveLength(2);
+});
+
+test("normal pipeline execution does not affect the input list", async () => {
+  const list: Middleware[] = [
+    (next) => async (input) => await next(input, input + " b"),
+    (next) => async (input, output) => await next(input, output + "a"),
+    (next) => async (input, output) => await next(input, output + "r"),
+  ];
+
+  const pipeline = makePipeline(list);
+
+  expect(list).toHaveLength(3);
+
+  const request = pipeline();
+
+  const reply = await request("foo");
+
+  expect(reply).toEqual("foo bar");
+
+  expect(list).toHaveLength(3);
 });

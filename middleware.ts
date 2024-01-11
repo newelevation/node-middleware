@@ -1,4 +1,4 @@
-import { isFunction } from "lodash";
+import { isArray, isFunction } from "lodash";
 
 export type MiddlewareHandler<Input = any, Output = any> = (
   input: Input,
@@ -7,21 +7,28 @@ export type MiddlewareHandler<Input = any, Output = any> = (
 
 export type Next = (input: any, output: any) => Promise<any>;
 
-export type Middleware<Input = any> = (next: Next) => MiddlewareHandler<Input>;
+export type UnamedMiddleware<Input = any> = (
+  next: Next,
+) => MiddlewareHandler<Input>;
 
-export type NamedMiddleware = [string, Middleware];
+export type NamedMiddleware = [string, UnamedMiddleware];
 
-export type Pipeline<Input = any> = <Output>() => MiddlewareHandler<
-  Input,
-  Output
->;
+export type Middleware = UnamedMiddleware | NamedMiddleware;
+
+export type InsertionPlacement = "before" | "after";
+
+export type Insertion = [InsertionPlacement, name: string, UnamedMiddleware];
+
+export type Pipeline<Input = any> = <Output>(
+  insertions?: Insertion[],
+) => MiddlewareHandler<Input, Output>;
 
 export const makePipeline = <Input>(
-  use: (Middleware | NamedMiddleware)[] = [],
+  use: Middleware[] = [],
 ): Pipeline<Input> => {
-  const pipeline: Pipeline<Input> = <Output>() => {
+  const pipeline: Pipeline<Input> = <Output>(insertions = []) => {
     return async (input: Input, output?: Output) => {
-      const list = use.slice(0);
+      const list = makeInsertions(use, insertions);
 
       const next: Next = async (input, output) => {
         const current = list.shift();
@@ -55,3 +62,24 @@ export const makePipeline = <Input>(
 };
 
 export const passOutputAlong: Next = async (_, output) => output;
+
+function makeInsertions(
+  use: ReadonlyArray<Middleware>,
+  insertions: any[],
+): Middleware[] {
+  const list = use.slice(0);
+
+  for (const [placement, name, item] of insertions) {
+    const index = list.findIndex((m) => isArray(m) && name === m[0]);
+
+    if (index < 0) {
+      throw new Error(
+        `could not find middleware named: ${JSON.stringify(name)}`,
+      );
+    }
+
+    list.splice(placement === "before" ? index : index + 1, 0, item);
+  }
+
+  return list;
+}

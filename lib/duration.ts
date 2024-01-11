@@ -1,6 +1,6 @@
-import { Middleware } from "../middleware";
+import { UnamedMiddleware } from "../middleware";
 
-export const duration: Middleware = (n) => async (i, o) => {
+export const duration: UnamedMiddleware = (n) => async (i, o) => {
   try {
     console.time("duration");
 
