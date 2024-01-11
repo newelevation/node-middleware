@@ -5558,7 +5558,11 @@ function makeInsertions(use, insertions) {
         `could not find middleware named: ${JSON.stringify(name)}`
       );
     }
-    target.splice(placement === "before" ? index : index + 1, 0, item);
+    if (placement === "replace") {
+      target[index][1] = item;
+    } else {
+      target.splice(placement === "before" ? index : index + 1, 0, item);
+    }
   }
   return target;
 }

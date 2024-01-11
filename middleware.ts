@@ -15,7 +15,7 @@ export type PipelineMiddleware<Input = any> =
   | Middleware<Input>
   | NamedMiddleware<Input>;
 
-export type InsertionPlacement = "before" | "after";
+export type InsertionPlacement = "before" | "after" | "replace";
 
 export type Insertion<Input = any> = [
   InsertionPlacement,
@@ -88,7 +88,11 @@ function makeInsertions(
       );
     }
 
-    target.splice(placement === "before" ? index : index + 1, 0, item);
+    if (placement === "replace") {
+      target[index][1] = item;
+    } else {
+      target.splice(placement === "before" ? index : index + 1, 0, item);
+    }
   }
 
   return target;

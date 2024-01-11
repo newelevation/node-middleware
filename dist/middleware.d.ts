@@ -3,7 +3,7 @@ export type Next = (input: any, output: any) => Promise<any>;
 export type Middleware<Input = any> = (next: Next) => MiddlewareHandler<Input>;
 export type NamedMiddleware<Input = any> = [string, Middleware<Input>];
 export type PipelineMiddleware<Input = any> = Middleware<Input> | NamedMiddleware<Input>;
-export type InsertionPlacement = "before" | "after";
+export type InsertionPlacement = "before" | "after" | "replace";
 export type Insertion<Input = any> = [
     InsertionPlacement,
     name: string,

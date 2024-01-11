@@ -306,3 +306,34 @@ test("insertions appear in the same order they are passed", async () => {
 
   expect(reply).toEqual("1ab2c34d");
 });
+
+test("middleware replacement", async () => {
+  const pipeline = makePipeline([
+    (next) => async (input) => await next(input, input),
+    [
+      "foo",
+      (next) => async (input, output) => await next(input, output + "foo"),
+    ],
+    [
+      "bar",
+      (next) => async (input, output) => await next(input, output + " bar"),
+    ],
+  ]);
+
+  expect(await pipeline()("")).toEqual("foo bar");
+
+  expect(
+    await pipeline([
+      [
+        "replace",
+        "foo",
+        (next) => async (input, output) => await next(input, output + "qux"),
+      ],
+      [
+        "replace",
+        "bar",
+        (next) => async (input, output) => await next(input, output + " waldo"),
+      ],
+    ])(""),
+  ).toEqual("qux waldo");
+});
