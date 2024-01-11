@@ -11,9 +11,11 @@ export type UnamedMiddleware<Input = any> = (
   next: Next,
 ) => MiddlewareHandler<Input>;
 
-export type NamedMiddleware = [string, UnamedMiddleware];
+export type NamedMiddleware<Input = any> = [string, UnamedMiddleware<Input>];
 
-export type Middleware = UnamedMiddleware | NamedMiddleware;
+export type Middleware<Input = any> =
+  | UnamedMiddleware<Input>
+  | NamedMiddleware<Input>;
 
 export type InsertionPlacement = "before" | "after";
 

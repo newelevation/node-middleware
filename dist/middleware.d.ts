@@ -1,8 +1,8 @@
 export type MiddlewareHandler<Input = any, Output = any> = (input: Input, output?: Output) => Promise<Output>;
 export type Next = (input: any, output: any) => Promise<any>;
 export type UnamedMiddleware<Input = any> = (next: Next) => MiddlewareHandler<Input>;
-export type NamedMiddleware = [string, UnamedMiddleware];
-export type Middleware = UnamedMiddleware | NamedMiddleware;
+export type NamedMiddleware<Input = any> = [string, UnamedMiddleware<Input>];
+export type Middleware<Input = any> = UnamedMiddleware<Input> | NamedMiddleware<Input>;
 export type InsertionPlacement = "before" | "after";
 export type Insertion = [InsertionPlacement, name: string, UnamedMiddleware];
 export type Pipeline<Input = any> = <Output>(insertions?: Insertion[]) => MiddlewareHandler<Input, Output>;
